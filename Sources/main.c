@@ -32,70 +32,6 @@
 #include "fsl_device_registers.h"
 #include "fsl_debug_console.h"
 
-
-////////////////////////////////////////////////////////////////////////////////
-// function
-// name: configSIM
-// returns: void
-// description: configures board System Integration Module
-////////////////////////////////////////////////////////////////////////////////
-/*
-void configSIM() {
-	// delay function
-	SIM_SCGC6 |= (1 << 24); // Enable TPM0
-	SIM_SOPT2 |= (0x2 << 24); // Set TPMSRC to OSCERCLK
-
-	SIM_SCGC5 |= (1<<13); // Enable Light Sensor I/O Port E
-	SIM_SCGC5 |= (1<<12); // Enable Port D
-	SIM_SCGC6 |= (1<<27); // Enable ADC Module
-}
-*/
-
-
-////////////////////////////////////////////////////////////////////////////////
-// function
-// name: configLS
-// returns: void
-// description: configures board light sensor
-////////////////////////////////////////////////////////////////////////////////
-/*
-void configLS() {
-	// Setup Analog Input - Default is analog (PTE22), No need to do anything.
-
-	// TODO - LED stuff can be taken out for production
-	// Setup LED Pin for GPIO
-	PORTD_PCR5 &= ~0x700; // Clear First
-	PORTD_PCR5 |= 0x700 & (1 << 8); // Set MUX bits
-
-	// Setup Pin 5 as output
-	GPIOD_PDDR |= (1 << 5);
-
-	// Setup ADC Clock ( < 4 MHz)
-	ADC0_CFG1 = 0;  // Default everything.
-
-	// Analog Calibrate
-	ADC0_SC3 = 0x07; // Enable Maximum Hardware Averaging
-	ADC0_SC3 |= 0x80; // Start Calibration
-
-	// Wait for Calibration to Complete (either COCO or CALF)
-	while(!(ADC0_SC1A & 0x80)){	}
-
-
-	// Calibration Complete, write calibration registers.
-	cal_v = ADC0_CLP0 + ADC0_CLP1 + ADC0_CLP2 + ADC0_CLP3 + ADC0_CLP4 + ADC0_CLPS;
-	cal_v = cal_v >> 1 | 0x8000;
-	ADC0_PG = cal_v;
-
-	cal_v = 0;
-	cal_v = ADC0_CLM0 + ADC0_CLM1 + ADC0_CLM2 + ADC0_CLM3 + ADC0_CLM4 + ADC0_CLMS;
-	cal_v = cal_v >> 1 | 0x8000;
-	ADC0_MG = cal_v;
-
-
-	ADC0_SC3 = 0; // Turn off Hardware Averaging
-}
-*/
-
 ////////////////////////////////////////////////////////////////////////////////
 // function
 // name: delay
@@ -140,8 +76,98 @@ void printMoorseChar(unsigned int code) {
 	case 0xFFFFFFF1:
 		PRINTF("E");
 		break;
+	case 0xFFFF1101:
+		PRINTF("F");
+		break;
+	case 0xFFFFF001:
+		PRINTF("G");
+		break;
+	case 0xFFFF1111:
+		PRINTF("H");
+		break;
+	case 0xFFFFFF11:
+		PRINTF("I");
+		break;
+	case 0xFFFF1000:
+		PRINTF("J");
+		break;
+	case 0xFFFFF010:
+		PRINTF("K");
+		break;
+	case 0xFFFF1011:
+		PRINTF("L");
+		break;
+	case 0xFFFFFF00:
+		PRINTF("M");
+		break;
+	case 0xFFFFFF01:
+		PRINTF("N");
+		break;
+	case 0xFFFFF000:
+		PRINTF("O");
+		break;
+	case 0xFFFF1001:
+		PRINTF("P");
+		break;
+	case 0xFFFF0010:
+		PRINTF("Q");
+		break;
+	case 0xFFFFF101:
+		PRINTF("R");
+		break;
+	case 0xFFFFF111:
+		PRINTF("S");
+		break;
 	case 0xFFFFFFF0:
 		PRINTF("T");
+		break;
+	case 0xFFFFF110:
+		PRINTF("U");
+		break;
+	case 0xFFFF1110:
+		PRINTF("V");
+		break;
+	case 0xFFFFF100:
+		PRINTF("W");
+		break;
+	case 0xFFFF0110:
+		PRINTF("X");
+		break;
+	case 0xFFFF0100:
+		PRINTF("Y");
+		break;
+	case 0xFFFF0011:
+		PRINTF("Z");
+		break;
+	case 0xFFF10000:
+		PRINTF("1");
+		break;
+	case 0xFFF11000:
+		PRINTF("2");
+		break;
+	case 0xFFF11100:
+		PRINTF("3");
+		break;
+	case 0xFFF11110:
+		PRINTF("4");
+		break;
+	case 0xFFF11111:
+		PRINTF("5");
+		break;
+	case 0xFFF01111:
+		PRINTF("6");
+		break;
+	case 0xFFF00111:
+		PRINTF("7");
+		break;
+	case 0xFFF00011:
+		PRINTF("8");
+		break;
+	case 0xFFF00001:
+		PRINTF("9");
+		break;
+	case 0xFFF00000:
+		PRINTF("0");
 		break;
 	case 0x10000000:
 		PRINTF(" ");
@@ -156,8 +182,6 @@ int main(void)
 {
 	// Hardware initializations and configurations
 	hardware_init();
-	//configSIM();
-	//configLS();
 
 	// Variables
 	unsigned int timeOn = 0;
