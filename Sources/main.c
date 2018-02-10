@@ -32,9 +32,6 @@
 #include "fsl_device_registers.h"
 #include "fsl_debug_console.h"
 
-// Light sensor Variables
-unsigned short cal_v = 0;
-unsigned char light_val = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // function
@@ -42,6 +39,7 @@ unsigned char light_val = 0;
 // returns: void
 // description: configures board System Integration Module
 ////////////////////////////////////////////////////////////////////////////////
+/*
 void configSIM() {
 	// delay function
 	SIM_SCGC6 |= (1 << 24); // Enable TPM0
@@ -51,6 +49,7 @@ void configSIM() {
 	SIM_SCGC5 |= (1<<12); // Enable Port D
 	SIM_SCGC6 |= (1<<27); // Enable ADC Module
 }
+*/
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +58,7 @@ void configSIM() {
 // returns: void
 // description: configures board light sensor
 ////////////////////////////////////////////////////////////////////////////////
+/*
 void configLS() {
 	// Setup Analog Input - Default is analog (PTE22), No need to do anything.
 
@@ -94,7 +94,7 @@ void configLS() {
 
 	ADC0_SC3 = 0; // Turn off Hardware Averaging
 }
-
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 // function
@@ -103,6 +103,9 @@ void configLS() {
 // description: delay's program for a period of n milliseconds
 ////////////////////////////////////////////////////////////////////////////////
 void delay(unsigned short n) {
+	SIM_SCGC6 |= (1 << 24); // Enable TPM0
+	SIM_SOPT2 |= (0x2 << 24); // Set TPMSRC to OSCERCLK
+
 	TPM0_CONF |= (0x1 << 17);
 	TPM0_SC = (1 << 7) | (0x7);
 
@@ -123,10 +126,25 @@ void delay(unsigned short n) {
 void printMoorseChar(unsigned int code) {
 	switch(code) {
 	case 0xFFFFFF10:
-		PRINTF('A');
+		PRINTF("A");
+		break;
+	case 0xFFFF0111:
+		PRINTF("B");
+		break;
+	case 0xFFFF0101:
+		PRINTF("C");
+		break;
+	case 0xFFFFF011:
+		PRINTF("D");
+		break;
+	case 0xFFFFFFF1:
+		PRINTF("E");
+		break;
+	case 0xFFFFFFF0:
+		PRINTF("T");
 		break;
 	case 0x10000000:
-		PRINTF(' ');
+		PRINTF(" ");
 		break;
 	default:
 		break;
@@ -138,22 +156,75 @@ int main(void)
 {
 	// Hardware initializations and configurations
 	hardware_init();
-	configSIM();
-	configLS();
+	//configSIM();
+	//configLS();
 
 	// Variables
 	unsigned int timeOn = 0;
 	unsigned int timeOff = 0;
 	unsigned int moorseCode = 0xFFFFFFFF;
 
+	// Light sensor Variables
+	unsigned short cal_v = 0;
+	unsigned char light_val = 0;
+
+	SIM_SCGC5 |= (1<<13); // Enable Light Sensor I/O Port E
+	SIM_SCGC5 |= (1<<12); // Enable Port D
+	SIM_SCGC6 |= (1<<27); // Enable ADC Module
+
+	// Setup Analog Input - Default is analog (PTE22), No need to do anything.
+
+	// TODO - LED stuff can be taken out for production
+	// Setup LED Pin for GPIO
+	PORTD_PCR5 &= ~0x700; // Clear First
+	PORTD_PCR5 |= 0x700 & (1 << 8); // Set MUX bits
+
+	// Setup Pin 5 as output
+	GPIOD_PDDR |= (1 << 5);
+	GPIOD_PSOR |= (1 << 5);
+
+	// Setup ADC Clock ( < 4 MHz)
+	ADC0_CFG1 = 0;  // Default everything.
+
+	// Analog Calibrate
+	ADC0_SC3 = 0x07; // Enable Maximum Hardware Averaging
+	ADC0_SC3 |= 0x80; // Start Calibration
+
+	// Wait for Calibration to Complete (either COCO or CALF)
+	while(!(ADC0_SC1A & 0x80)){	}
+
+
+	// Calibration Complete, write calibration registers.
+	cal_v = ADC0_CLP0 + ADC0_CLP1 + ADC0_CLP2 + ADC0_CLP3 + ADC0_CLP4 + ADC0_CLPS;
+	cal_v = cal_v >> 1 | 0x8000;
+	ADC0_PG = cal_v;
+
+	cal_v = 0;
+	cal_v = ADC0_CLM0 + ADC0_CLM1 + ADC0_CLM2 + ADC0_CLM3 + ADC0_CLM4 + ADC0_CLMS;
+	cal_v = cal_v >> 1 | 0x8000;
+	ADC0_MG = cal_v;
+
+
+	ADC0_SC3 = 0; // Turn off Hardware Averaging
+
+	int firstLight = 0;
+
 	while(1) {
 		ADC0_SC1A = 0x03; // Set Channel, starts conversion.
-
 		while(!(ADC0_SC1A & 0x80)){	}
-
 		light_val = ADC0_RA; // Resets COCO
 
-		if(light_val > 250) {
+		do {
+			ADC0_SC1A = 0x03; // Set Channel, starts conversion.
+			while(!(ADC0_SC1A & 0x80)){	}
+			light_val = ADC0_RA; // Resets COCO
+			if(light_val < 250)
+				firstLight = 1;
+		} while ( firstLight == 0);
+
+
+
+		if(light_val < 250) {
 
 			if(timeOff >= 225 && timeOff <= 275) { // +- 25ms wiggle room?
 
@@ -165,12 +236,14 @@ int main(void)
 				// Time between letters
 				printMoorseChar(moorseCode);
 				moorseCode = 0xFFFFFFFF; // re-init
+				timeOff = 0;
 
 			} else if(timeOff >= 975 && timeOff <= 1025) {
 
 				// New word
 				printMoorseChar(0x10000000);
 				moorseCode = 0xFFFFFFFF; // re-init
+				timeOff = 0;
 
 			}
 
@@ -185,13 +258,13 @@ int main(void)
 			if(timeOn >= 225 && timeOn <= 275 ) {
 
 				// that was a dot
-				morseCode = (morseCode << 4) + 1; // shift "1" into code
+				moorseCode = (moorseCode << 4) + 1; // shift "1" into code
 				timeOn = 0; // re-init
 
 			} else if(timeOn >= 725 && timeOn <= 775) {
 
 				// that was a dash
-				morseCode = (morseCode << 4); // shift "0" into code
+				moorseCode = (moorseCode << 4); // shift "0" into code
 				timeOn = 0; // re-init either way
 
 			}
@@ -199,6 +272,17 @@ int main(void)
 			// light is off
 			delay(1);
 			timeOff++;
+			if(timeOff > 1025) {
+				// message stop
+				printMoorseChar(moorseCode);
+				moorseCode = 0xFFFFFFFF; // re-init
+				timeOff = 0;
+				while(light_val > 250) {
+					ADC0_SC1A = 0x03; // Set Channel, starts conversion.
+					while(!(ADC0_SC1A & 0x80)){	}
+					light_val = ADC0_RA; // Resets COCO
+				}
+			}
 
 			// GPIOD_PDOR |= (1<<5); // LED on when light off
 		}

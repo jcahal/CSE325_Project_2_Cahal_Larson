@@ -1,7 +1,7 @@
 Sources/main.o: ../Sources/main.c \
- C:\Users\rmeuth\workspace.kds\Template\ Project\ (Rename\ Me!)\board/board.h \
- C:\Users\rmeuth\workspace.kds\Template\ Project\ (Rename\ Me!)\board/pin_mux.h \
- C:\Users\rmeuth\workspace.kds\Template\ Project\ (Rename\ Me!)\board/gpio_pins.h \
+ C:\Users\jcahal\workspace.kds\CSE325_Project_2_Cahal_Larson\board/board.h \
+ C:\Users\jcahal\workspace.kds\CSE325_Project_2_Cahal_Larson\board/pin_mux.h \
+ C:\Users\jcahal\workspace.kds\CSE325_Project_2_Cahal_Larson\board/gpio_pins.h \
  C:\Freescale\KSDK_1.3.0\platform\drivers\inc/fsl_gpio_driver.h \
  C:\Freescale\KSDK_1.3.0\platform\hal\inc/fsl_port_hal.h \
  C:\Freescale\KSDK_1.3.0\platform\devices/fsl_device_registers.h \
@@ -19,11 +19,11 @@ Sources/main.o: ../Sources/main.c \
  C:\Freescale\KSDK_1.3.0\platform\osa\inc/fsl_os_abstraction.h \
  C:\Freescale\KSDK_1.3.0\platform\osa\inc/fsl_os_abstraction_bm.h
 
-C:\Users\rmeuth\workspace.kds\Template\ Project\ (Rename\ Me!)\board/board.h:
+C:\Users\jcahal\workspace.kds\CSE325_Project_2_Cahal_Larson\board/board.h:
 
-C:\Users\rmeuth\workspace.kds\Template\ Project\ (Rename\ Me!)\board/pin_mux.h:
+C:\Users\jcahal\workspace.kds\CSE325_Project_2_Cahal_Larson\board/pin_mux.h:
 
-C:\Users\rmeuth\workspace.kds\Template\ Project\ (Rename\ Me!)\board/gpio_pins.h:
+C:\Users\jcahal\workspace.kds\CSE325_Project_2_Cahal_Larson\board/gpio_pins.h:
 
 C:\Freescale\KSDK_1.3.0\platform\drivers\inc/fsl_gpio_driver.h:
 

@@ -56,7 +56,7 @@ all: Template\ Project\ (Rename\ Me!).elf secondary-outputs
 Template\ Project\ (Rename\ Me!).elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM GNU C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g3 -T "MKL46Z256xxx4_flash.ld" -Xlinker --gc-sections -L"C:/Users/rmeuth/workspace.kds/Template Project (Rename Me!)/Project_Settings/Linker_Files" -Wl,-Map,"Template Project (Rename Me!).map" -specs=nosys.specs -specs=nano.specs -Xlinker -z -Xlinker muldefs -o "Template Project (Rename Me!).elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g3 -T "MKL46Z256xxx4_flash.ld" -Xlinker --gc-sections -L"C:/Users/jcahal/workspace.kds/CSE325_Project_2_Cahal_Larson/Project_Settings/Linker_Files" -Wl,-Map,"Template Project (Rename Me!).map" -specs=nosys.specs -specs=nano.specs -Xlinker -z -Xlinker muldefs -o "Template Project (Rename Me!).elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
